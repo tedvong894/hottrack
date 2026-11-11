@@ -67,6 +67,15 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:6px;
 .seg button.on{background:var(--accent-soft);color:var(--accent)}
 .result-line{margin:14px 0 10px;font-size:12px;color:var(--ink-3)}
 
+/* ---------- date bar ---------- */
+.datebar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:9px}
+.datebar::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);
+  font-size:12.5px;padding:5px 12px;border-radius:16px;cursor:pointer;white-space:nowrap;font-family:inherit;font-variant-numeric:tabular-nums}
+.chip:hover{border-color:#d3cec5}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip i{font-style:normal;font-size:11px;opacity:.85;margin-left:2px}
+
 /* ---------- card ---------- */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
 .card.done{opacity:.62}
@@ -194,6 +203,7 @@ footer b{color:var(--ink-2);font-weight:600}
 </div>
 
 <div class="toolbar">
+  <div class="datebar" id="dateBar"></div>
   <div class="tabs" id="tabs"></div>
   <div class="row2">
     <input class="search" id="search" type="search" placeholder="搜标题、钩子、标签…" autocomplete="off">
@@ -204,6 +214,7 @@ footer b{color:var(--ink-2);font-weight:600}
     </select>
     <div class="seg" id="filter">
       <button data-f="all" class="on">全部</button>
+      <button data-f="mood">情绪</button>
       <button data-f="fav">收藏</button>
       <button data-f="done">已拍</button>
     </div>
@@ -220,7 +231,7 @@ footer b{color:var(--ink-2);font-weight:600}
 </div>
 
 <footer>
-  <div><b>怎么更新：</b>跟我说一句「更新今日热点」，我会重新搜当天各平台榜单、重写 data.js。连网打开自动就是新一期，不用手动清缓存（需要留档旧案例请说一声）。</div>
+  <div><b>怎么更新：</b>跟我说一句「更新今日热点」，我会重新搜当天各平台榜单、重写 data.js。连网打开自动就是新一期，不用手动清缓存。近 5 天的数据会按日期保留在顶部日期条，点日期即可切换回看历史选题。</div>
   <div><b>怎么用：</b>先按爆款分从上往下挑 → 展开看故事线和 60 秒口播 → 一键复制脚本去改 → 拍完点「已拍」。每条都附了备选标题、封面文案、话题标签、评论区引导和风险提示。</div>
   <div><b>口径说明：</b><span id="footNote"></span></div>
   <div class="pwa-bar">
@@ -240,40 +251,65 @@ footer b{color:var(--ink-2);font-weight:600}
 <script src="data.js"></script>
 <script>
 (function(){
-  var D = window.HOTSPOT_DATA;
-  if(!D){ document.getElementById('list').innerHTML = '<div class="empty">数据文件 data.js 没读到，请确认它和 index.html 在同一个文件夹。</div>'; return; }
+  var DAYS = window.HOTSPOT_DAYS || [window.HOTSPOT_DATA];
+  if(!DAYS || !DAYS[0] || !DAYS[0].cases){ document.getElementById('list').innerHTML = '<div class="empty">数据文件 data.js 没读到，请确认它和 index.html 在同一个文件夹。</div>'; return; }
 
-  var LS_KEY = 'hottrack_state_v1';
+  var LS_KEY = 'hottrack_state_v2';   // v2：收藏/已拍/删除按「日期|id」隔离，避免跨天串号
   var state = {};
   try { state = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e){ state = {}; }
   if(!state.deleted) state.deleted = {};   // 本地隐藏（删除）的选题 id
   function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
-  function st(id){ if(!state[id]) state[id] = {fav:false, done:false}; return state[id]; }
-
-  var cur = { cat:'all', filter:'all', q:'', sort:'score' };
+  var cur = { day:0, cat:'all', filter:'all', q:'', sort:'score' };
+  var D = DAYS[cur.day];
+  function key(id){ return D.meta.date + '|' + id; }   // 状态按「日期|id」隔离
+  function st(id){ var k = key(id); if(!state[k]) state[k] = {fav:false, done:false}; return state[k]; }
   var esc = function(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var catById = {}; D.cats.forEach(function(c){ catById[c.id]=c; });
   function catHTML(id){ var c=catById[id]||{name:id,color:'#8d8981'};
     return '<span class="cat"><span class="cat-dot" style="background:'+c.color+'"></span>'+esc(c.name)+'</span>'; }
 
-  /* ---- header ---- */
-  document.getElementById('tagDate').textContent = D.meta.date + ' ' + D.meta.weekday;
-  document.getElementById('edition').textContent = D.meta.edition + ' · 采集于 ' + D.meta.collectedAt.slice(11);
-  document.getElementById('subline').textContent = '来源：' + D.meta.sources;
-  var top = D.cases.slice().sort(function(a,b){return b.score-a.score;});
-  document.getElementById('statLine').innerHTML =
-    '<span><b>'+D.cases.length+'</b> 条可用案例</span>'+
-    '<span><b>'+D.cats.length+'</b> 个分类</span>'+
-    '<span><b>'+D.avoid.length+'</b> 条避坑提示</span>'+
-    '<span>今日最高 <b>'+top[0].score+'</b> 分</span>';
-  document.getElementById('footNote').textContent = D.meta.note;
-  document.getElementById('footMeta').textContent = '数据版本 ' + D.meta.date + ' ' + D.meta.collectedAt + ' · 本页为选题工作台，所有事实以附带的原始报道为准。';
+  /* ---- 按日期刷新头部 / 列表 / 分类 / 日期条 ---- */
+  function renderDateBar(){
+    var bar = document.getElementById('dateBar');
+    if(DAYS.length <= 1){ bar.innerHTML = ''; return; }
+    bar.innerHTML = DAYS.map(function(d,i){
+      return '<button class="chip'+(i===cur.day?' on':'')+'" data-d="'+i+'">'+d.meta.date.slice(5)+' '+d.meta.weekday+(i===0?' <i>今</i>':'')+'</button>';
+    }).join('');
+  }
+  function applyDay(){
+    D = DAYS[cur.day];
+    document.getElementById('tagDate').textContent = D.meta.date + ' ' + D.meta.weekday;
+    document.getElementById('edition').textContent = D.meta.edition + ' · 采集于 ' + D.meta.collectedAt.slice(11);
+    document.getElementById('subline').textContent = '来源：' + D.meta.sources;
+    var top = D.cases.slice().sort(function(a,b){return b.score-a.score;});
+    document.getElementById('statLine').innerHTML =
+      '<span><b>'+D.cases.length+'</b> 条可用案例</span>'+
+      '<span><b>'+D.cats.length+'</b> 个分类</span>'+
+      '<span><b>'+D.avoid.length+'</b> 条避坑提示</span>'+
+      '<span>今日最高 <b>'+top[0].score+'</b> 分</span>';
+    document.getElementById('footNote').textContent = D.meta.note;
+    document.getElementById('footMeta').textContent = '数据版本 ' + D.meta.date + ' ' + D.meta.collectedAt + ' · 本页为选题工作台，所有事实以附带的原始报道为准。';
+    document.getElementById('todayList').innerHTML = top.slice(0,3).map(function(c){
+      return '<li data-go="'+c.id+'">'+esc(c.title)+'<span>'+c.score+' 分 · '+esc(catById[c.cat].name)+'</span></li>';
+    }).join('');
+    var counts = {}; D.cases.forEach(function(c){ counts[c.cat]=(counts[c.cat]||0)+1; });
+    document.getElementById('tabs').innerHTML =
+      '<button class="tab on" data-c="all">全部<span class="n">'+D.cases.length+'</span></button>' +
+      D.cats.map(function(c){ return '<button class="tab" data-c="'+c.id+'" title="'+esc(c.hint)+'">'+esc(c.name)+'<span class="n">'+(counts[c.id]||0)+'</span></button>'; }).join('');
+    cur.cat='all'; cur.filter='all'; cur.q=''; document.getElementById('search').value='';
+    document.querySelectorAll('#filter button').forEach(function(b){b.classList.toggle('on', b.dataset.f==='all');});
+    document.getElementById('avoidList').innerHTML = D.avoid.map(function(a){
+      return '<div class="avoid"><h3>'+esc(a.title)+'</h3>'+
+        '<div class="ah">热度：'+esc(a.heat)+'</div>'+
+        '<p>'+esc(a.why)+'</p>'+
+        '<p class="instead">替代做法：'+esc(a.instead)+'</p></div>';
+    }).join('');
+    renderDateBar();
+    render();
+  }
 
-  /* ---- today top3 ---- */
-  document.getElementById('todayList').innerHTML = top.slice(0,3).map(function(c){
-    return '<li data-go="'+c.id+'">'+esc(c.title)+'<span>'+c.score+' 分 · '+esc(catById[c.cat].name)+'</span></li>';
-  }).join('');
+  /* ---- today top3（初始渲染交给 applyDay，这里只绑交互） ---- */
   document.getElementById('todayList').addEventListener('click', function(e){
     var li = e.target.closest('[data-go]'); if(!li) return;
     cur.cat='all'; cur.filter='all'; cur.q=''; document.getElementById('search').value='';
@@ -286,16 +322,21 @@ footer b{color:var(--ink-2);font-weight:600}
     }, 40);
   });
 
-  /* ---- tabs ---- */
-  var counts = {}; D.cases.forEach(function(c){ counts[c.cat]=(counts[c.cat]||0)+1; });
-  document.getElementById('tabs').innerHTML =
-    '<button class="tab on" data-c="all">全部<span class="n">'+D.cases.length+'</span></button>' +
-    D.cats.map(function(c){ return '<button class="tab" data-c="'+c.id+'" title="'+esc(c.hint)+'">'+esc(c.name)+'<span class="n">'+(counts[c.id]||0)+'</span></button>'; }).join('');
+  /* ---- tabs（初始渲染交给 applyDay，这里只绑交互） ---- */
   document.getElementById('tabs').addEventListener('click', function(e){
     var b=e.target.closest('.tab'); if(!b) return;
     cur.cat=b.dataset.c;
     document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===b);});
     render();
+  });
+
+  /* ---- 日期切换 ---- */
+  document.getElementById('dateBar').addEventListener('click', function(e){
+    var b=e.target.closest('.chip'); if(!b) return;
+    var i=parseInt(b.dataset.d,10);
+    if(isNaN(i) || i===cur.day) return;
+    cur.day=i; applyDay();
+    window.scrollTo({top:0,behavior:'smooth'});
   });
 
   /* ---- filter / sort / search ---- */
@@ -314,26 +355,28 @@ footer b{color:var(--ink-2);font-weight:600}
 
   /* ---- card html ---- */
   function scriptText(c){
-    var s = c.title + '\n\n【封面】' + c.cover + '\n\n【口播脚本 · 约60秒】\n';
-    c.script.forEach(function(x){ s += x.t + '｜' + x.label + '：' + x.text + '\n'; });
-    s += '\n【备选标题】\n' + c.titles.map(function(t,i){return (i+1)+'. '+t;}).join('\n');
-    s += '\n\n【话题标签】' + c.tags.join(' ');
-    s += '\n\n【评论区引导】' + c.growth.comment;
-    s += '\n\n【风险提示】' + c.risk;
+    var g = c.growth || {};
+    var s = c.title + '\n\n【封面】' + (c.cover||'') + '\n\n【口播脚本 · 约60秒】\n';
+    (c.script||[]).forEach(function(x){ s += x.t + '｜' + x.label + '：' + x.text + '\n'; });
+    s += '\n【备选标题】\n' + (c.titles||[]).map(function(t,i){return (i+1)+'. '+t;}).join('\n');
+    s += '\n\n【话题标签】' + (c.tags||[]).join(' ');
+    s += '\n\n【评论区引导】' + (g.comment||'');
+    s += '\n\n【风险提示】' + (c.risk||'');
     return s;
   }
 
   function cardHTML(c){
     var s = st(c.id);
+    var g = c.growth || {};
     var storyRows = [
       ['起','setup'],['承','conflict'],['转','turn'],['合','open']
     ].map(function(p){ return '<div class="k">'+p[0]+'</div><div>'+esc(c.story[p[1]])+'</div>'; }).join('');
-    var scriptRows = c.script.map(function(x){
+    var scriptRows = (c.script||[]).map(function(x){
       return '<tr><td>'+esc(x.t)+'</td><td>'+esc(x.label)+'</td><td>'+esc(x.text)+'</td></tr>';
     }).join('');
-    var srcs = c.sources.map(function(s2){
+    var srcs = (c.sources && c.sources.length) ? c.sources.map(function(s2){
       return '<li><a href="'+esc(s2.url)+'" target="_blank" rel="noopener">'+esc(s2.name)+'</a></li>';
-    }).join('');
+    }).join('') : '<li>'+esc(c.verified||'以官方通报为准')+'</li>';
 
     return '<article class="card'+(s.done?' done':'')+'" data-id="'+c.id+'">'+
       '<div class="card-top">'+
@@ -354,13 +397,13 @@ footer b{color:var(--ink-2);font-weight:600}
       '</div>'+
       '<div class="detail">'+
         '<div class="sec"><div class="sec-h">故事线</div><div class="story">'+storyRows+'</div></div>'+
-        '<div class="sec"><div class="sec-h">关键数字</div><ul class="facts">'+c.facts.map(function(f){return '<li>'+esc(f)+'</li>';}).join('')+'</ul></div>'+
-        '<div class="sec"><div class="sec-h">备选标题</div><ol class="title-list">'+c.titles.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ol></div>'+
+        '<div class="sec"><div class="sec-h">关键数字</div><ul class="facts">'+(c.facts||[]).map(function(f){return '<li>'+esc(f)+'</li>';}).join('')+'</ul></div>'+
+        '<div class="sec"><div class="sec-h">备选标题</div><ol class="title-list">'+(c.titles||[]).map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ol></div>'+
         '<div class="sec"><div class="sec-h">封面文案</div><div class="cover">'+esc(c.cover)+'</div></div>'+
         '<div class="sec"><div class="sec-h">口播脚本 · 约 60 秒</div><table class="tbl"><tbody>'+scriptRows+'</tbody></table></div>'+
-        '<div class="sec"><div class="sec-h">话题标签</div><div class="tags">'+c.tags.map(function(t){return '<span>'+esc(t)+'</span>';}).join('')+'</div></div>'+
+        '<div class="sec"><div class="sec-h">话题标签</div><div class="tags">'+(c.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('')+'</div></div>'+
         '<div class="sec"><div class="sec-h">为什么能涨粉</div>'+
-          '<div class="note-box growth"><b>涨粉点　</b>'+esc(c.growth.why)+'<br><b>评论区　</b>'+esc(c.growth.comment)+'</div></div>'+
+          '<div class="note-box growth"><b>涨粉点　</b>'+esc(g.why)+'<br><b>评论区　</b>'+esc(g.comment)+'</div></div>'+
         (c.angle ? '<div class="sec"><div class="sec-h">你的账号怎么切</div><div class="note-box angle">'+esc(c.angle)+'</div></div>' : '')+
         '<div class="sec"><div class="sec-h">风险提示</div><div class="note-box risk">'+esc(c.risk)+'</div></div>'+
         '<div class="sec"><div class="sec-h">原始来源</div><ul class="srcs">'+srcs+'</ul></div>'+
@@ -380,10 +423,11 @@ footer b{color:var(--ink-2);font-weight:600}
       var s=st(c.id);
       if(cur.filter==='fav' && !s.fav) return false;
       if(cur.filter==='done' && !s.done) return false;
+      if(cur.filter==='mood' && c.vibe!=='情绪') return false;
       if(cur.q){
-        var hay = [c.title,c.hook,c.cover,c.tags.join(' '),c.heat,c.verified,
+        var hay = [c.title,c.hook,c.cover,(c.tags||[]).join(' '),c.heat,c.verified,
                    c.story.setup,c.story.conflict,c.story.turn,c.story.open,
-                   c.angle||'',c.facts.join(' '),catById[c.cat].name].join(' ').toLowerCase();
+                   c.angle||'',(c.facts||[]).join(' '),catById[c.cat].name].join(' ').toLowerCase();
         if(hay.indexOf(cur.q)<0) return false;
       }
       return true;
@@ -465,19 +509,11 @@ footer b{color:var(--ink-2);font-weight:600}
     clearTimeout(tt); tt=setTimeout(function(){el.classList.remove('show');},1600);
   }
 
-  /* ---- avoid ---- */
-  document.getElementById('avoidList').innerHTML = D.avoid.map(function(a){
-    return '<div class="avoid"><h3>'+esc(a.title)+'</h3>'+
-      '<div class="ah">热度：'+esc(a.heat)+'</div>'+
-      '<p>'+esc(a.why)+'</p>'+
-      '<p class="instead">替代做法：'+esc(a.instead)+'</p></div>';
-  }).join('');
-
-  render();
+  applyDay();   // 统一入口：头部 / 今日三条 / 分类 / 避坑 / 日期条 全部按当前天渲染
 
   /* ================= PWA ================= */
   var APP_VERSION = '1.0.0';
-  var BUILD = '20261110-1330';   // 只改这里：sw.js 的缓存版本会跟着 ?v= 自动同步
+  var BUILD = '20261111-1530';   // 只改这里：sw.js 的缓存版本会跟着 ?v= 自动同步
 
   var elState = document.getElementById('pwaState');
   var elDot   = document.getElementById('netDot');

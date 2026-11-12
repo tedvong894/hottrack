@@ -119,7 +119,6 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:6px;
 .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .tbl td{border-top:1px solid var(--line-soft);padding:8px 0;vertical-align:top;line-height:1.7}
 .tbl td:first-child{width:62px;color:var(--ink-3);font-size:11.5px;white-space:nowrap;padding-right:8px}
-.tbl td:nth-child(2){width:44px;color:var(--accent);font-size:11.5px;white-space:nowrap;padding-right:8px}
 .tbl td:last-child{color:var(--ink-2)}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tags span{font-size:11.5px;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:4px}
@@ -182,7 +181,6 @@ footer b{color:var(--ink-2);font-weight:600}
   .today{padding:14px}
   .story{grid-template-columns:44px 1fr;gap:4px 8px}
   .tbl td:first-child{width:52px}
-  .tbl td:nth-child(2){width:38px}
   .verified{margin-left:0;width:100%;margin-top:6px}
 }
 </style>
@@ -235,7 +233,7 @@ footer b{color:var(--ink-2);font-weight:600}
 
 <footer>
   <div><b>怎么更新：</b>跟我说一句「更新今日热点」，我会重新搜当天各平台榜单、重写 data.js。连网打开自动就是新一期，不用手动清缓存。近 5 天数据会一直保留，默认按「全部日期」汇总展示，用工具栏的日期下拉可切回单独某一天。</div>
-  <div><b>怎么用：</b>内容分类里的案例默认汇总近 5 天（卡片左上角标了日期），想看单期就在日期下拉里选具体某天 → 按爆款分从上往下挑 → 展开看故事线和 60 秒口播 → 一键复制脚本去改 → 拍完点「已拍」。每条都附了备选标题、封面文案、话题标签、评论区引导和风险提示。</div>
+  <div><b>怎么用：</b>内容分类里的案例默认汇总近 5 天（卡片左上角标了日期），想看单期就在日期下拉里选具体某天 → 按爆款分从上往下挑 → 展开看故事线和 60 秒口播 → 点「复制口播脚本」拿纯正文（不含时间轴、功能词和运营信息，可直接喂 AI）→ 拍完点「已拍」。备选标题、封面文案、话题标签等仍留在卡片里备查。</div>
   <div><b>口径说明：</b><span id="footNote"></span></div>
   <div class="pwa-bar">
     <span class="pwa-state"><span class="dot" id="netDot"></span><span id="pwaState">正在检查离线缓存…</span></span>
@@ -392,15 +390,10 @@ footer b{color:var(--ink-2);font-weight:600}
   });
 
   /* ---- card html ---- */
+  /* 复制用：只给口播正文。时间轴「0-8秒」和段落功能词「钩子/拆解」不能进配音文本，
+     封面、备选标题、话题标签、评论区引导、风险提示属于运营信息，一律不复制。 */
   function scriptText(c){
-    var g = c.growth || {};
-    var s = c.title + '\n\n【封面】' + (c.cover||'') + '\n\n【口播脚本 · 约60秒】\n';
-    (c.script||[]).forEach(function(x){ s += x.t + '｜' + x.label + '：' + x.text + '\n'; });
-    s += '\n【备选标题】\n' + (c.titles||[]).map(function(t,i){return (i+1)+'. '+t;}).join('\n');
-    s += '\n\n【话题标签】' + (c.tags||[]).join(' ');
-    s += '\n\n【评论区引导】' + (g.comment||'');
-    s += '\n\n【风险提示】' + (c.risk||'');
-    return s;
+    return (c.script||[]).map(function(x){ return x.text; }).join('\n\n');
   }
 
   function cardHTML(c){
@@ -409,8 +402,9 @@ footer b{color:var(--ink-2);font-weight:600}
     var storyRows = [
       ['起','setup'],['承','conflict'],['转','turn'],['合','open']
     ].map(function(p){ return '<div class="k">'+p[0]+'</div><div>'+esc(c.story[p[1]])+'</div>'; }).join('');
+    /* 表格只留「时间 + 正文」两列，隐藏段落功能词 */
     var scriptRows = (c.script||[]).map(function(x){
-      return '<tr><td>'+esc(x.t)+'</td><td>'+esc(x.label)+'</td><td>'+esc(x.text)+'</td></tr>';
+      return '<tr><td>'+esc(x.t)+'</td><td>'+esc(x.text)+'</td></tr>';
     }).join('');
     var srcs = (c.sources && c.sources.length) ? c.sources.map(function(s2){
       return '<li><a href="'+esc(s2.url)+'" target="_blank" rel="noopener">'+esc(s2.name)+'</a></li>';
@@ -447,7 +441,7 @@ footer b{color:var(--ink-2);font-weight:600}
         '<div class="sec"><div class="sec-h">风险提示</div><div class="note-box risk">'+esc(c.risk)+'</div></div>'+
         '<div class="sec"><div class="sec-h">原始来源</div><ul class="srcs">'+srcs+'</ul></div>'+
         '<div class="acts">'+
-          '<button class="btn primary" data-act="copy">复制完整脚本</button>'+
+          '<button class="btn primary" data-act="copy" title="只复制口播正文，不含时间轴、功能词和运营信息">复制口播脚本</button>'+
           '<button class="btn" data-act="copyhook">只复制钩子</button>'+
           '<span class="verified">核对：'+esc(c.verified)+'</span>'+
         '</div>'+
@@ -554,7 +548,7 @@ footer b{color:var(--ink-2);font-weight:600}
 
   /* ================= PWA ================= */
   var APP_VERSION = '1.0.0';
-  var BUILD = '20261112-1400';   // 只改这里：sw.js 的缓存版本会跟着 ?v= 自动同步
+  var BUILD = '20261112-1425';   // 只改这里：sw.js 的缓存版本会跟着 ?v= 自动同步
 
   var elState = document.getElementById('pwaState');
   var elDot   = document.getElementById('netDot');

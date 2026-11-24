@@ -37,6 +37,11 @@ jobs:
         with:
           path: '.'
 
+      # GitHub 偶发 API 竞态：artifact 上传成功后 deploy-pages 立即查询会 Found 0 artifact(s)
+      # 等待元数据索引同步，避免部署误判失败
+      - name: Wait for artifact index
+        run: sleep 15
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

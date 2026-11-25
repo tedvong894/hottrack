@@ -139,6 +139,64 @@ select{border:1px solid var(--line);background:var(--surface);border-radius:6px;
 .btn.primary:hover{background:#33302c}
 .verified{font-size:11.5px;color:var(--ink-3);margin-left:auto}
 
+/* ---------- 视图切换：经典 / 轮播口播 ---------- */
+.view-switch{display:flex;width:max-content;max-width:100%;border:1px solid var(--line);border-radius:8px;
+  overflow:hidden;background:var(--surface);margin-top:14px}
+.view-switch button{border:0;background:transparent;padding:7px 16px;font-size:12.5px;color:var(--ink-2);
+  cursor:pointer;font-family:inherit;white-space:nowrap}
+.view-switch button+button{border-left:1px solid var(--line)}
+.view-switch button.on{background:var(--ink);color:#fff}
+.view-switch button .new{font-size:10px;background:var(--accent);color:#fff;border-radius:8px;
+  padding:0 5px;margin-left:5px;vertical-align:1px}
+.view-tip{font-size:11.5px;color:var(--ink-3);margin-top:8px;line-height:1.7}
+
+/* ---------- 轮播口播（仅新格式新闻） ---------- */
+.carousel-bar{position:sticky;top:0;z-index:19;background:var(--bg);padding:10px 0 9px;
+  border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.carousel-bar .cb-info{font-size:12.5px;color:var(--ink-2)}
+.carousel-bar .cb-info b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums;margin:0 1px}
+.carousel-bar .cb-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.carousel-stage{margin-top:14px}
+.carousel-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:2px 0 12px}
+.carousel-track::-webkit-scrollbar{display:none}
+.cslide{flex:0 0 100%;scroll-snap-align:center;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:20px 22px;min-height:320px;transition:border-color .2s,box-shadow .2s}
+.cslide.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.cslide-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-3);margin-bottom:12px}
+.cslide-head .selbtn{margin-left:auto;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);
+  border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.cslide.sel .selbtn{background:var(--accent);border-color:var(--accent);color:#fff}
+.cslide h2{font-size:19px;line-height:1.5;margin:0 0 10px;font-weight:600}
+.cslide .hook{font-size:13px;color:var(--ink-2);margin:0 0 16px}
+.cslide .body{font-size:13.5px;color:var(--ink);line-height:1.9}
+.cslide .body p{margin:0 0 12px}
+.cslide-foot{margin-top:18px;padding-top:12px;border-top:1px solid var(--line-soft);
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cslide-foot .btn{padding:4px 10px;font-size:12px}
+.cslide-foot .verified{font-size:11.5px;color:var(--ink-3);margin-left:auto}
+.carousel-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:2px}
+.carousel-nav button{border:1px solid var(--line);background:var(--surface);color:var(--ink-2);
+  border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:18px;line-height:1;font-family:inherit;flex:none}
+.carousel-nav button:hover{border-color:var(--accent);color:var(--accent)}
+.carousel-nav .dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:60%}
+.carousel-nav .dots i{width:6px;height:6px;border-radius:50%;background:var(--line);cursor:pointer}
+.carousel-nav .dots i.on{background:var(--accent);width:16px;border-radius:3px}
+.carousel-nav .pos{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;min-width:52px;text-align:center}
+
+/* ---------- 口播稿弹层 ---------- */
+.sheet-mask{position:fixed;inset:0;background:rgba(20,19,17,.42);z-index:80;display:none}
+.sheet-mask.on{display:block}
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(105%);
+  width:min(720px,100%);max-height:86vh;background:var(--surface);border-radius:14px 14px 0 0;
+  z-index:81;display:flex;flex-direction:column;transition:transform .25s;box-shadow:0 -8px 30px rgba(0,0,0,.12)}
+.sheet.on{transform:translateX(-50%) translateY(0)}
+.sheet-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.sheet-h h3{font-size:15px;margin:0;font-weight:600}
+.sheet-h .x{margin-left:auto;border:0;background:transparent;color:var(--ink-3);font-size:22px;cursor:pointer;line-height:1}
+.sheet-body{padding:16px 18px;overflow:auto;font-size:13.5px;line-height:1.9;color:var(--ink);white-space:pre-wrap}
+.sheet-f{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sheet-f .tip{font-size:11.5px;color:var(--ink-3);margin-left:auto}
+
 /* ---------- avoid ---------- */
 .avoid-wrap{margin-top:34px}
 .sec-title{font-size:15px;font-weight:600;margin:0 0 4px}
@@ -182,6 +240,12 @@ footer b{color:var(--ink-2);font-weight:600}
   .story{grid-template-columns:44px 1fr;gap:4px 8px}
   .tbl td:first-child{width:52px}
   .verified{margin-left:0;width:100%;margin-top:6px}
+  .view-switch button{padding:7px 12px}
+  .cslide{padding:16px 15px;min-height:300px}
+  .cslide h2{font-size:17px}
+  .cslide .body{font-size:13px}
+  .cslide-foot .verified{margin-left:0;width:100%;margin-top:2px}
+  .carousel-bar .cb-actions{margin-left:0;width:100%}
 }
 </style>
 </head>
@@ -198,6 +262,13 @@ footer b{color:var(--ink-2);font-weight:600}
   <div class="stat-line" id="statLine"></div>
 </header>
 
+<div class="view-switch" id="viewSwitch">
+  <button data-v="classic" class="on">经典选题</button>
+  <button data-v="carousel">轮播口播<span class="new" id="newBadge" style="display:none">新</span></button>
+</div>
+<div class="view-tip" id="viewTip">经典视图：历史选题保持原样，可展开看完整脚本、逐条复制口播正文。</div>
+
+<div id="classicBox">
 <div class="today" id="todayBox">
   <div class="today-h" id="todayH">今天最值得拍的三条 · 点标题直接跳到脚本</div>
   <ol id="todayList"></ol>
@@ -230,10 +301,32 @@ footer b{color:var(--ink-2);font-weight:600}
   <p class="sec-desc" id="avoidDesc">比「拍什么」更重要的，是知道什么不能拍。以下是今天很热、但不建议拿来做涨粉的题。</p>
   <div id="avoidList"></div>
 </div>
+</div><!-- /classicBox -->
+
+<div id="carouselBox" style="display:none">
+  <div class="carousel-bar" id="carouselBar">
+    <span class="cb-info">新格式选题 <b id="cTotal">0</b> 条 · 已选 <b id="cSel">0</b> 条</span>
+    <span class="cb-actions">
+      <button class="btn" id="cAll">全选</button>
+      <button class="btn" id="cNone">清空</button>
+      <button class="btn primary" id="cSpeak">口播</button>
+    </span>
+  </div>
+  <div id="cEmpty" class="empty" style="display:none">还没有新格式新闻。从下一次每日更新开始，新增选题会自动出现在这里；历史选题请切回「经典选题」。</div>
+  <div class="carousel-stage" id="cStage">
+    <div class="carousel-track" id="carouselTrack"></div>
+    <div class="carousel-nav">
+      <button id="cPrev" aria-label="上一条">‹</button>
+      <div class="dots" id="cDots"></div>
+      <span class="pos" id="cPos"></span>
+      <button id="cNext" aria-label="下一条">›</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div><b>怎么更新：</b>跟我说一句「更新今日热点」，我会重新搜当天各平台榜单、重写 data.js。连网打开自动就是新一期，不用手动清缓存。近 5 天数据会一直保留，默认按「全部日期」汇总展示，用工具栏的日期下拉可切回单独某一天。</div>
-  <div><b>怎么用：</b>内容分类里的案例默认汇总近 5 天（卡片左上角标了日期），想看单期就在日期下拉里选具体某天 → 按爆款分从上往下挑 → 展开看故事线和口播脚本（每条时长按脚本时间轴显示，约 1.5~2 分钟）→ 点「复制口播脚本」拿纯正文（不含时间轴、功能词和运营信息，可直接喂 AI）→ 拍完点「已拍」。备选标题、封面文案、话题标签等仍留在卡片里备查。</div>
+  <div><b>怎么用：</b>页面顶部有两个视图。<b>经典选题</b>＝历史选题原样保留：内容分类默认汇总近 5 天（卡片左上角标了日期），想看单期就在日期下拉里选具体某天 → 按爆款分从上往下挑 → 展开看故事线和口播脚本 → 点「复制口播脚本」拿纯正文（不含时间轴、功能词和运营信息，可直接喂 AI）→ 拍完点「已拍」；备选标题、封面文案、话题标签等仍留在卡片里备查。<b>轮播口播</b>＝只放以后新增的选题：左右切换逐条看，点「＋ 选中」勾选要拍的几条，再点「口播」生成一份包含所有选中新闻的完整稿件，可一键复制。</div>
   <div><b>口径说明：</b><span id="footNote"></span></div>
   <div class="pwa-bar">
     <span class="pwa-state"><span class="dot" id="netDot"></span><span id="pwaState">正在检查离线缓存…</span></span>
@@ -248,6 +341,13 @@ footer b{color:var(--ink-2);font-weight:600}
 
 </div>
 <div class="toast" id="toast"></div>
+
+<div class="sheet-mask" id="sheetMask"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="口播稿">
+  <div class="sheet-h"><h3>口播稿 · 已选 <span id="sheetN">0</span> 条</h3><button class="x" id="sheetX" aria-label="关闭">×</button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+  <div class="sheet-f"><button class="btn primary" id="sheetCopy">复制口播稿</button><span class="tip">纯口播正文，可直接喂 AI 或配音</span></div>
+</div>
 
 <script src="data.js"></script>
 <script>
@@ -274,6 +374,20 @@ footer b{color:var(--ink-2);font-weight:600}
       }
     });
   });
+  /* ===== 新旧分流（2026-11-25 用户限定） =====
+     只有显式带 format:'carousel' 的案例走新的「轮播 + 多选 + 口播稿」逻辑；
+     历史案例（无该字段，含 11-25 及之前全部数据）一律保持原来的卡片/脚本表现，
+     数据本身一个字不改、不回填标记。 */
+  function isNewCase(c){ return !!c && c.format === 'carousel'; }
+  var NEW_CASES = [];
+  DAYS.forEach(function(d){
+    d.cases.forEach(function(c){ if(isNewCase(c)) NEW_CASES.push(c); });
+  });
+  NEW_CASES.sort(function(a,b){
+    var da=String(a.id).slice(0,10), db=String(b.id).slice(0,10);
+    return (da<db?1:da>db?-1:0) || (b.score-a.score);
+  });
+
   function isAll(){ return cur.day < 0; }
   function pool(){ return isAll() ? ALL_CASES : DAYS[cur.day].cases; }
   function caseDate(id){ var m=String(id).match(/^\d{4}-\d{2}-\d{2}/); return m ? m[0].slice(5) : ''; }
@@ -552,11 +666,207 @@ footer b{color:var(--ink-2);font-weight:600}
     clearTimeout(tt); tt=setTimeout(function(){el.classList.remove('show');},1600);
   }
 
+  /* =====================================================================
+     轮播口播视图：只处理带 format:'carousel' 的新增新闻。
+     经典视图的 DOM 与逻辑完全保留，两条路径互不影响。
+     ===================================================================== */
+  var CS_KEY = 'hottrack_carousel_sel_v1';
+  var GAP = 14;
+  var view = NEW_CASES.length ? 'carousel' : 'classic';   // 有新格式数据时默认进入新视图
+  var carousel = { list:[], idx:0, sel:{} };
+  try {
+    var savedSel = JSON.parse(localStorage.getItem(CS_KEY) || '[]');
+    if (Array.isArray(savedSel)) savedSel.forEach(function(id){ carousel.sel[id] = true; });
+  } catch(e){}
+  function saveSel(){
+    try{ localStorage.setItem(CS_KEY, JSON.stringify(selIds())); }catch(e){}
+  }
+  function selIds(){
+    return Object.keys(carousel.sel).filter(function(k){ return carousel.sel[k]; });
+  }
+  var track = document.getElementById('carouselTrack');
+
+  function cslideHTML(c){
+    var s = st(c.id), on = !!carousel.sel[c.id];
+    return '<section class="cslide'+(on?' sel':'')+'" data-cid="'+esc(c.id)+'">'+
+      '<div class="cslide-head">'+catHTML(c.cat)+
+        '<span class="sep">·</span><span class="day-tag">'+esc(caseDate(c.id))+'</span>'+
+        '<span class="sep">·</span><span class="score">'+c.score+'<i> 分</i></span>'+
+        '<button class="selbtn" data-csel="'+esc(c.id)+'">'+(on?'✓ 已选中':'＋ 选中')+'</button>'+
+      '</div>'+
+      '<h2>'+esc(c.title)+'</h2>'+
+      '<p class="hook">'+esc(c.hook)+'</p>'+
+      '<div class="body">'+(c.script||[]).map(function(x){return '<p>'+esc(x.text)+'</p>';}).join('')+'</div>'+
+      '<div class="cslide-foot">'+
+        '<button class="btn" data-cfav="'+esc(c.id)+'">'+(s.fav?'已收藏':'收藏')+'</button>'+
+        '<button class="btn" data-cdone="'+esc(c.id)+'">'+(s.done?'已拍':'标已拍')+'</button>'+
+        '<button class="btn" data-cdel="'+esc(c.id)+'">删除</button>'+
+        '<span class="verified">'+esc(c.heat)+'</span>'+
+      '</div>'+
+    '</section>';
+  }
+
+  function renderCarousel(){
+    carousel.list = NEW_CASES.filter(function(c){ return !state.deleted[c.id]; });
+    // 已被删除 / 已滚出数据的选中项自动清理，避免"已选 N 条"虚高
+    var alive = {};
+    carousel.list.forEach(function(c){ if(carousel.sel[c.id]) alive[c.id] = true; });
+    carousel.sel = alive; saveSel();
+    if(carousel.idx >= carousel.list.length) carousel.idx = 0;
+
+    var noData = carousel.list.length === 0;
+    document.getElementById('cEmpty').style.display = noData ? '' : 'none';
+    document.getElementById('cStage').style.display  = noData ? 'none' : '';
+    document.getElementById('carouselBar').style.display = noData ? 'none' : '';
+    document.getElementById('cTotal').textContent = carousel.list.length;
+    document.getElementById('cSel').textContent = selIds().length;
+    if(noData){
+      track.innerHTML = '';
+      document.getElementById('cDots').innerHTML = '';
+      document.getElementById('cPos').textContent = '';
+      return;
+    }
+    track.innerHTML = carousel.list.map(cslideHTML).join('');
+    document.getElementById('cDots').innerHTML = carousel.list.map(function(_,i){
+      return '<i data-cgo="'+i+'"'+(i===carousel.idx?' class="on"':'')+'></i>';
+    }).join('');
+    document.getElementById('cPos').textContent = (carousel.idx+1)+' / '+carousel.list.length;
+    track.scrollLeft = carousel.idx * (track.clientWidth + GAP);
+  }
+
+  // 只更新选中态，不重建 DOM，避免滚动位置被重置
+  function paintSelState(){
+    document.getElementById('cSel').textContent = selIds().length;
+    Array.prototype.forEach.call(track.querySelectorAll('.cslide'), function(el){
+      var on = !!carousel.sel[el.dataset.cid];
+      el.classList.toggle('sel', on);
+      var b = el.querySelector('.selbtn');
+      if(b) b.textContent = on ? '✓ 已选中' : '＋ 选中';
+    });
+  }
+
+  function goSlide(i){
+    var n = carousel.list.length; if(!n) return;
+    i = Math.max(0, Math.min(n-1, i));
+    carousel.idx = i;
+    track.scrollTo({ left:i*(track.clientWidth+GAP), behavior:'smooth' });
+    document.getElementById('cPos').textContent = (i+1)+' / '+n;
+    Array.prototype.forEach.call(document.querySelectorAll('#cDots i'), function(d,j){
+      d.classList.toggle('on', j===i);
+    });
+  }
+
+  function syncSlideByScroll(){
+    var n = carousel.list.length; if(!n) return;
+    var i = Math.round(track.scrollLeft / (track.clientWidth + GAP));
+    i = Math.max(0, Math.min(n-1, i));
+    if(i === carousel.idx) return;
+    carousel.idx = i;
+    document.getElementById('cPos').textContent = (i+1)+' / '+n;
+    Array.prototype.forEach.call(document.querySelectorAll('#cDots i'), function(d,j){
+      d.classList.toggle('on', j===i);
+    });
+  }
+
+  function buildSpeech(){
+    var picked = carousel.list.filter(function(c){ return carousel.sel[c.id]; });
+    if(!picked.length) return '';
+    return picked.map(function(c,i){
+      var body = (c.script||[]).map(function(x){ return x.text; }).join('\n\n');
+      return '第'+(i+1)+'条：'+c.title+'\n\n'+body;
+    }).join('\n\n———\n\n');
+  }
+  function openSheet(){
+    var ids = selIds();
+    if(!ids.length){ toast('先选中至少一条新闻'); return; }
+    document.getElementById('sheetN').textContent = ids.length;
+    document.getElementById('sheetBody').textContent = buildSpeech();
+    document.getElementById('sheetMask').classList.add('on');
+    document.getElementById('sheet').classList.add('on');
+  }
+  function closeSheet(){
+    document.getElementById('sheetMask').classList.remove('on');
+    document.getElementById('sheet').classList.remove('on');
+  }
+
+  function paintView(){
+    document.querySelectorAll('#viewSwitch button').forEach(function(b){
+      b.classList.toggle('on', b.dataset.v === view);
+    });
+    document.getElementById('classicBox').style.display = view==='classic' ? '' : 'none';
+    document.getElementById('carouselBox').style.display = view==='carousel' ? '' : 'none';
+    document.getElementById('newBadge').style.display = NEW_CASES.length ? '' : 'none';
+    document.getElementById('viewTip').textContent = view==='classic'
+      ? '经典视图：历史选题保持原样，可展开看完整脚本、逐条复制口播正文。'
+      : '轮播口播：左右切换选题，勾选要拍的几条，点「口播」生成一份完整稿件。这里只放以后新增的选题，历史内容仍在经典视图。';
+    if(view==='carousel') renderCarousel(); else render();
+  }
+
+  document.getElementById('viewSwitch').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b || b.dataset.v === view) return;
+    view = b.dataset.v;
+    paintView();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  track.addEventListener('click', function(e){
+    var slide = e.target.closest('.cslide'); if(!slide) return;
+    var id = slide.dataset.cid;
+    if(e.target.closest('[data-csel]')){
+      if(carousel.sel[id]) delete carousel.sel[id]; else carousel.sel[id] = true;
+      saveSel(); paintSelState(); return;
+    }
+    var f = e.target.closest('[data-cfav],[data-cdone],[data-cdel]');
+    if(f){
+      var s = st(id);
+      if(f.hasAttribute('data-cfav')){
+        s.fav = !s.fav; save(); f.textContent = s.fav ? '已收藏' : '收藏';
+        toast(s.fav ? '已收藏' : '已取消收藏');
+      } else if(f.hasAttribute('data-cdone')){
+        s.done = !s.done; save(); f.textContent = s.done ? '已拍' : '标已拍';
+        toast(s.done ? '已标已拍' : '已取消已拍');
+      } else {
+        if(confirm('删除这条选题？可在经典视图底部恢复。')){
+          state.deleted[id] = true; save();
+          delete carousel.sel[id]; saveSel(); renderCarousel();
+        }
+      }
+      return;
+    }
+  });
+  track.addEventListener('scroll', syncSlideByScroll);
+  document.getElementById('cPrev').addEventListener('click', function(){ goSlide(carousel.idx-1); });
+  document.getElementById('cNext').addEventListener('click', function(){ goSlide(carousel.idx+1); });
+  document.getElementById('cDots').addEventListener('click', function(e){
+    var d = e.target.closest('[data-cgo]'); if(d) goSlide(+d.dataset.cgo);
+  });
+  document.getElementById('cAll').addEventListener('click', function(){
+    carousel.list.forEach(function(c){ carousel.sel[c.id] = true; });
+    saveSel(); paintSelState(); toast('已全选 '+carousel.list.length+' 条');
+  });
+  document.getElementById('cNone').addEventListener('click', function(){
+    carousel.sel = {}; saveSel(); paintSelState(); toast('已清空选择');
+  });
+  document.getElementById('cSpeak').addEventListener('click', openSheet);
+  document.getElementById('sheetX').addEventListener('click', closeSheet);
+  document.getElementById('sheetMask').addEventListener('click', closeSheet);
+  document.getElementById('sheetCopy').addEventListener('click', function(){
+    copy(document.getElementById('sheetBody').textContent);
+  });
+  document.addEventListener('keydown', function(e){
+    if(view!=='carousel' || document.getElementById('sheet').classList.contains('on')) return;
+    if(/^(INPUT|TEXTAREA|SELECT)$/i.test(e.target.tagName)) return;
+    if(e.key === 'ArrowLeft') goSlide(carousel.idx-1);
+    if(e.key === 'ArrowRight') goSlide(carousel.idx+1);
+    if(e.key === 'Escape') closeSheet();
+  });
+
   applyDay();   // 统一入口：默认「全部日期」汇总视图，刷新头部 / 今日三条 / 分类 / 避坑 / 列表
+  paintView();  // 再按新旧数据现状落到对应视图（无新格式数据时界面与改动前完全一致）
 
   /* ================= PWA ================= */
   var APP_VERSION = '1.0.0';
-  var BUILD = '20261116-1032';   // 只改这里：sw.js 的缓存版本会跟着 ?v= 自动同步
+  var BUILD = '20261125-1405';   // 只改这里：sw.js 的缓存版本会跟着 ?v= 自动同步
 
   var elState = document.getElementById('pwaState');
   var elDot   = document.getElementById('netDot');
